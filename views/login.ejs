@@ -1,0 +1,104 @@
+<%- include('header.ejs', { isAuthenticated: isAuthenticated }) %>
+<style>
+    * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+:root {
+  --padding: 60px;
+}
+.box {
+  position: relative;
+  margin: 50px auto;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--padding);
+  background-color: #cfe5ff;
+  border-radius: 7px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.box input,
+.box button {
+  padding: 15px;
+  font-size: 1.0em;
+  border: none;
+}
+.box input {
+  margin-bottom: 15px;
+}
+.box button {
+  background-color: transparent; /* 배경색을 투명으로 설정하여 버튼 색상 초기화 */
+  border: 1px solid #fff; /* 테두리를 흰색으로 설정 */
+  color: #fff; /* 버튼 텍스트 색상을 흰색으로 설정 */
+  transition: background-color 0.3s; /* 배경색 변화에 대한 전환 효과 설정 */
+  border-radius: 10px; /* 테두리의 둥근 정도를 조정 */
+}
+.box button:hover {
+    background-color: #fff; /* 버튼에 마우스 호버 시 배경색을 바꿔줌 */
+    color: #cfe5ff;
+}
+
+</style>
+
+<body>
+    <form action="/login" method="post"> 
+      <div class="box">
+        <h4 class="mb-3">로그인</h4><br>
+        <div class="mb-3">
+          <label for="email">이메일</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+          <div class="invalid-feedback">
+            이메일을 입력해주세요.
+          </div>
+        </div>
+        <label for="password">비밀번호</label>
+        <div class="mb-3 input-group">
+            <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호를 입력해주세요." autocomplete="off" required>
+            <button class="btn btn-outline-secondary d-flex justify-content-center align-items-center" type="button" id="togglePassword" style="width: 40px; height: 54px; border-radius: 4px;">
+                <i class="fas fa-eye-slash"></i>
+            </button>
+            <div class="invalid-feedback">
+                비밀번호를 입력해주세요.
+            </div>
+        </div>
+        <button type="submit">Sign in</button>
+        <button style="margin-top: 10px;" onclick="location.href='/register'">Sign up</button>
+  
+        <footer class="my-3 text-center text-small">
+          <p class="mb-1">&copy; 2024 EUN </p>
+        </footer>
+      </div>
+    </form>
+
+  </body>
+
+  <script>
+    const passwordInput = document.getElementById('password');
+    const togglePasswordButton = document.getElementById('togglePassword');
+
+    // 눈 아이콘 상태 변수
+    let isPasswordVisible = false;
+
+    // 숨기기/보이기 버튼 클릭 이벤트 처리
+    togglePasswordButton.addEventListener('click', function() {
+        // 비밀번호 입력란의 타입 변경 (텍스트 또는 비밀번호)
+        const type = isPasswordVisible ? 'password' : 'text';
+        passwordInput.setAttribute('type', type);
+
+        // 아이콘 변경
+        if (isPasswordVisible) {
+            togglePasswordButton.innerHTML = '<i class="fas fa-eye-slash"></i>'; // 비밀번호 가리기 아이콘으로 변경
+        } else {
+            togglePasswordButton.innerHTML = '<i class="fas fa-eye"></i>'; // 비밀번호 보이기 아이콘으로 변경
+        }
+
+        // 눈 아이콘 상태 변경
+        isPasswordVisible = !isPasswordVisible;
+    });
+</script>
+
+<%-include('footer.ejs')%>
