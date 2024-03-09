@@ -1,0 +1,42 @@
+<%- include('header.ejs', { isAuthenticated: isAuthenticated }) %>
+<style>
+    .box {
+        position: relative;
+        margin: 60px auto;
+        width: 60%;
+        padding: 15px; 
+        background-color: #cfe5ff;
+        border-radius: 7px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+        float: right;
+    }
+</style>
+
+<form action="/bUpdate/<%= post._id %>" method="post">
+    <div class="box">
+        <h3>게시글 수정 페이지</h3>
+        <div>
+            <label for="title">제목:</label>
+            <input class="form-control" type="text" id="title" name="title" value="<%= post.title %>" required>
+        </div>
+        <div>
+            <% if (isAuthenticated) { %>
+                작성자 : <input class="form-control" type="text" name ="name" value="<%= post.name %>" readonly>
+            <% } else { %>
+                작성자 : <input class="form-control" type="text" name ="name" required>
+            <% } %>
+        </div>
+        <div>
+            <label for="contents">내용:</label>
+            <textarea class="form-control" id="contents" name="contents" cols="50" rows="10" required><%= post.contents %></textarea>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-outline-secondary">수정</button>
+        <br><br>
+    </div>
+</form>
+
+<%-include('footer.ejs')%>

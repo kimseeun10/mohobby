@@ -1,0 +1,56 @@
+<%- include('header.ejs', { isAuthenticated: isAuthenticated }) %>
+
+<style>
+    input{
+        margin-bottom: 10px;
+    }
+
+    .box {
+        position: relative;
+        margin: 60px auto;
+        width: 60%;
+        padding: 15px; 
+        background-color: #cfe5ff;
+        border-radius: 7px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .img {
+        height: 280px;
+        margin-top: 30px;
+    }
+</style>
+
+<div class="box">
+    <div>
+        <h3>마이 페이지</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <br>
+            <div class="info">
+                <div>
+                    <label for="email">이메일 : </label>
+                    <input class="form-control" type="email" id="email" name="email" value="<%= user ? user.email : '' %>" readonly>
+                </div>
+                <div>
+                    <label for="name">이름 : </label>
+                    <input class="form-control" type="text" id="name" name="name" value="<%= user ? user.name : '' %>" readonly>
+                </div>
+                <div class="">
+                  <label for="region">지역 : </label>
+                  <input type="text" class="form-control" id="region" name="region" value="<%= user ? user.region : '' %>" placeholder="" readonly>
+                </div>
+                <div class="">
+                  <label for="dong">동네 : </label>
+                  <input type="text" class="form-control" id="dong" name="dong" value="<%= user ? user.dong : '' %>" placeholder="" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-center justify-content-center img">
+            <img src="/uploads/<%= user.image %>" alt="User Image">
+        </div>
+    </div>
+</div>
+
+<%- include('footer.ejs') %>

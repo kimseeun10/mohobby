@@ -4,7 +4,7 @@ const saltRounds = 10; // salt를 몇글자로 할것인지
 const jwt = require('jsonwebtoken');
 
 const userSchema = mongoose.Schema({ 
-    // 아이디(이메일), 비밀번호, 이름, 지역, 동네, 권한, 이미지, 토큰, 토큰유효기간
+    // 아이디(이메일), 비밀번호, 이름, 지역, 동네, 권한, 이미지
 
     email: {
         type: String,

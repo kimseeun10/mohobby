@@ -1,0 +1,30 @@
+<%- include('header.ejs', { isAuthenticated: isAuthenticated }) %>
+<style>
+    .box {
+        position: relative;
+        margin: 60px auto;
+        width: 60%;
+        padding: 15px; 
+        background-color: #cfe5ff;
+        border-radius: 7px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<form action="/boardAdd" method="post">
+    <div class="box">
+        <h3>게시글 작성</h3>
+        제목 : <input class="form-control" type="text" name ="title" required>
+        <% if (isAuthenticated) { %>
+            작성자 : <input class="form-control" type="text" name ="name" value="<%= name %>" readonly>
+        <% } else { %>
+            작성자 : <input class="form-control" type="text" name ="name" required>
+        <% } %>
+        내용 <br>
+            <textarea class="form-control" name="contents" cols="50" rows="10"></textarea>
+            <br>
+            <button class="btn btn-outline-secondary">등록</button>
+    </div>        
+</form>
+
+<%-include('footer.ejs')%>

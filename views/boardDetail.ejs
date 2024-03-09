@@ -1,0 +1,54 @@
+<%- include('header.ejs', { isAuthenticated: isAuthenticated }) %>
+
+<style>
+    .box {
+        position: relative;
+        margin: 60px auto;
+        width: 60%;
+        padding: 15px; 
+        background-color: #cfe5ff;
+        border-radius: 7px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+        float: right;
+        margin-right: 10px;
+    }
+</style>
+
+<body>
+    <div class="box">
+        <h3>게시글 상세 페이지</h3>
+        <div>
+            <label for="title">제목 : </label>
+            <input class="form-control" type="text" id="title" name="title" value="<%= post.title %>" readonly>
+        </div>
+        <div>
+            <label for="name">작성자 : </label>
+            <input class="form-control" type="text" id="name" name="name" value="<%= post.name %>" readonly>
+        </div>
+        <div>
+            <label for="contents">내용 : </label>
+            <textarea class="form-control" id="contents" name="contents" cols="50" rows="10" readonly><%= post.contents %></textarea>
+        </div>
+        <br>       
+        <button class="btn btn-outline-secondary" onclick="location.href='/boardUpdate/<%= post._id %>'">수정</button>
+        <form action="/board/<%= post._id %>/delete" method="POST">
+            <button type="submit" class="btn btn-outline-danger del">게시글 삭제</button>
+        </form>
+        <br><br>
+    </div> 
+
+    <script>
+                
+        $(".del").click(function(){
+            let result = confirm("삭제하시겠습니까?")
+            if(!result){return false;}
+        })
+
+    </script>
+
+</body>
+
+<%-include('footer.ejs')%>

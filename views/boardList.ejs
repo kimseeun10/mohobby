@@ -1,0 +1,49 @@
+<%- include('header.ejs', { isAuthenticated: isAuthenticated }) %>
+<style>
+    .box {
+        position: relative;
+        margin: 60px auto;
+        width: 60%;
+        padding: 15px; 
+        background-color: #cfe5ff;
+        border-radius: 7px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .tb {
+        border-radius: 7px;
+        text-align: center;
+        margin: 0 auto; 
+        width: 100%; 
+    }
+    .tb th, .tb td {
+        padding: 10px; 
+    }
+
+    button {
+        float: right;
+    }
+
+</style>
+<body>
+    <div class="box">
+        <h3>게시판 목록</h3>
+        <table class="table tb">
+            <thead>
+                <th>제목</th>
+                <th>작성자</th>
+            </thead>
+            <tbody>
+                <% boards.forEach(board => { %>
+                    <tr>
+                        <td><a href="/board/<%= board._id %>"><%= board.title %></a></td> <!-- 제목을 클릭하면 해당 글 상세로 이동 -->
+                        <td><%= board.name %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        <br>
+        <button class="btn btn-outline-secondary" onclick="location.href='/board'">글 작성</button>
+        <br><br>
+    </div>
+</body>
+<%- include('footer.ejs') %>

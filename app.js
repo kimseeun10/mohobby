@@ -9,7 +9,8 @@ const LocalStrategy = require('passport-local').Strategy; // 로컬방식으로 
 const app = express();
 const port = 3000
 
-const { User } = require("./models/User") // 모델 스키마 가져오기
+const { User } = require("./models/User"); // 모델 스키마 가져오기
+const { Board } = require("./models/board");
 const { auth } = require("./middleware/auth");
 
 const mongoose = require('mongoose');
@@ -84,33 +85,130 @@ app.get('/', (req, res) => {
     res.render('index', { isAuthenticated }); // isAuthenticated 변수를 템플릿에 전달합니다.
 });
 
-app.get('/profile', (req, res) => {
-    const isAuthenticated = req.isAuthenticated();
-    res.render('profile', { isAuthenticated }); // ./views/profile.ejs
-})
-
 app.get('/map', (req, res) => {
     const isAuthenticated = req.isAuthenticated();
     res.render('map', { isAuthenticated }); // ./views/map.ejs
 })
 
-app.get('/contact', (req, res) => {
+app.get('/boardList', async (req, res) => {
+    try {
+        // 데이터베이스에서 모든 게시글을 가져옵니다.
+        const boards = await Board.find().sort({ board_date: -1 });
+        const isAuthenticated = req.isAuthenticated();
+        res.render('boardList', { boards, isAuthenticated }); // ./views/boardList.ejs에 boards를 전달합니다.
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('서버 오류');
+    }
+});
+
+// 글 추가
+app.get('/board', (req, res) => {
     const isAuthenticated = req.isAuthenticated();
-    res.render('contact', { isAuthenticated }); // ./views/contact.ejs
-})
+    const name = req.user ? req.user.name : '';
+    res.render('board', { isAuthenticated ,name }); // ./views/contact.ejs
+});
 
-app.post('/contactProc', (req, res) => {
-    const name = req.body.name;
-    const phone = req.body.phone;
-    const email = req.body.email;
-    const memo = req.body.memo;
+app.post('/boardAdd', async (req, res) => {
+    const { title, contents, name, board_date } = req.body;
 
-    var a = ` 안녕하세요. ${name}님 ${phone}, ${email}로 답변드립니다. 
-                문의내용 ${memo}`
+    try {
+        const name = req.user.name;
+        // MongoDB에 새로운 글 정보 저장
+        const newBoard = await Board.create({
+            title: title,
+            contents: contents,
+            name: name,
+            board_date: board_date
+        });
 
-    res.send(a);
+        // 글 등록 성공 시 응답
+        res.status(201).send('<script>alert("글 등록 성공"); window.location="/boardList";</script>');
+    } catch (error) {
+        // 에러 발생 시 에러 응답
+        console.error('글 등록 실패:', error);
+        res.status(500).redirect('/board');
+    }
+});
 
-})
+// 게시판 상세페이지 라우트
+app.get('/board/:id', async (req, res) => {
+    const isAuthenticated = req.isAuthenticated();
+    try {
+        // URL에서 게시글 ID를 가져오기
+        const postId = req.params.id;
+
+        // 데이터베이스에서 해당 ID를 가진 게시글을 조회
+        const post = await Board.findById(postId);
+
+        if (!post) {
+            return res.status(404).send('게시물을 찾을 수 없습니다.');
+        }
+
+        // 게시물을 찾았다면 해당 게시물 상세 페이지를 렌더링
+        res.render('boardDetail', { post, isAuthenticated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('서버 오류');
+    }
+});
+
+// 게시글 수정 페이지
+app.get('/boardUpdate/:id', async (req, res) => {
+    const isAuthenticated = req.isAuthenticated();
+    try {
+        // URL에서 게시글 ID를 가져오기
+        const postId = req.params.id;
+
+        // 데이터베이스에서 해당 ID를 가진 게시글을 조회
+        const post = await Board.findById(postId);
+
+        if (!post) {
+            return res.status(404).send('게시물을 찾을 수 없습니다.');
+        }
+
+        // 게시물을 찾았다면 해당 게시물 상세 페이지를 렌더링
+        res.render('boardUpdate', { post, isAuthenticated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('서버 오류');
+    }
+});
+
+app.post('/bUpdate/:id', async (req, res) => {
+    const { title, contents } = req.body;
+    const postId = req.params.id; // 게시글 ID 가져오기
+
+    try {
+        // MongoDB에 해당 ID를 가진 게시글을 찾아 업데이트
+        await Board.findByIdAndUpdate(postId, {
+            title: title,
+            contents: contents
+        });
+
+        // 수정 성공 시 메인 페이지로 리다이렉트
+        res.status(201).send('<script>alert("게시글 수정 성공"); window.location="/board/' + postId + '";</script>');
+    } catch (error) {
+        // 에러 발생 시 에러 응답
+        console.error('게시글 수정 실패:', error);
+        res.status(500).send('서버 오류');
+    }
+});
+
+app.post('/board/:id/delete', async (req, res) => {
+    const postId = req.params.id;
+
+    try {
+        // 데이터베이스에서 해당 ID를 가진 게시글을 찾아 삭제
+        await Board.findByIdAndDelete(postId);
+        res.status(200).send('<script>alert("삭제되었습니다."); window.location="/boardList";</script>')
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('게시글 삭제 실패');
+    }
+});
 
 // 로그인, 회원가입 구현
 
@@ -120,7 +218,7 @@ app.get('/register', (req, res) => {
 })
 app.post('/register', async (req, res) => {
     // 클라이언트가 보낸 회원가입 데이터 받아오기
-    const { email, password, name, region, dong } = req.body;
+    const { email, password, name, region, dong, image } = req.body;
 
     try {
         // MongoDB에 새로운 회원 정보 저장
@@ -129,7 +227,8 @@ app.post('/register', async (req, res) => {
             password: password,
             name: name,
             region: region,
-            dong: dong
+            dong: dong,
+            image: image
         });
 
         // 회원가입 성공 시 응답
@@ -180,10 +279,25 @@ app.get('/logout', (req, res) => {
 });
 
 // 마이페이지
-app.get('/mypage/:email', (req, res) => {
-    // 여기에서 isAuthenticated 변수를 정의하거나 가져와서 전달해야 합니다.
-    const isAuthenticated = req.isAuthenticated(); // 현재 사용자가 인증되어 있는지 확인합니다.
-    res.render('mypage', { isAuthenticated }); // isAuthenticated 변수를 템플릿에 전달합니다.
+app.get('/mypage', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        // 로그인되지 않은 사용자는 마이페이지에 접근할 수 없으므로 로그인 페이지로 리다이렉트합니다.
+        return res.redirect('/login');
+    }
+
+    try {
+        // 현재 로그인한 사용자의 id를 가져옵니다.
+        const userId = req.user._id;
+
+        // 데이터베이스에서 해당 ID를 가진 사용자를 조회합니다.
+        const user = await User.findById(userId);
+
+        // 사용자를 찾은 후 해당 사용자의 마이페이지를 렌더링합니다.
+        res.render('mypage', { user, isAuthenticated: true }); // isAuthenticated를 정의하여 템플릿에 전달합니다.
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('서버 오류');
+    }
 });
 
 
